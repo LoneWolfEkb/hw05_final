@@ -18,7 +18,6 @@ POST_EDIT_VIEW = 'posts:post_edit'
 POST_DETAIL_VIEW = 'posts:post_detail'
 PROFILE_URL = reverse('posts:profile', kwargs={'username': AUTHOR})
 POST_CREATE_URL = reverse('posts:post_create')
-ADD_COMMENT_URL = reverse('posts:add_comment')
 LOGIN_URL = reverse('users:login')
 
 
@@ -65,6 +64,8 @@ class FormsTests(TestCase):
         self.POST_EDIT_URL = reverse(POST_EDIT_VIEW,
                                      kwargs={'post_id': self.post.id})
         self.POST_DETAIL_URL = reverse(POST_DETAIL_VIEW,
+                                       kwargs={'post_id': self.post.id})
+        self.ADD_COMMENT_URL = reverse('posts:add_comment',
                                        kwargs={'post_id': self.post.id})
 
     def test_form_create(self):
