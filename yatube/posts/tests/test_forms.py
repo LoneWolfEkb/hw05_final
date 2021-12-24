@@ -104,9 +104,9 @@ class FormsTests(TestCase):
         self.assertEqual(response_logined.context['post_comments'][0].text,
                          NEW_TEXT)
         response_unlogined = self.author_client.post(ADD_COMMENT_URL,
-                                                   data=form_data)
+                                                     data=form_data)
         self.assertRedirects(response_unlogined,
-                             f'{LOGIN_URL}?next={self.POST_DETAIL_URL}')   
+                             f'{LOGIN_URL}?next={self.POST_DETAIL_URL}')
         self.assertEqual(Comment.objects.count(), comment_count + 1)
 
     def test_post_edit(self):
