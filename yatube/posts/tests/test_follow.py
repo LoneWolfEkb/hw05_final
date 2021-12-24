@@ -53,17 +53,17 @@ class FormsTests(TestCase):
         self.new_follower_client.get(FOLLOW_URL)
         self.assertEqual(Follow.objects.count(), follows_before + 1)
         self.assertTrue( 
-            Follow.objects.filter( 
-                user = self.new_follower, 
-                author=self.poster 
+            Follow.objects.filter(
+                user=self.new_follower,
+                author=self.poster
             ).exists() 
         )
         self.new_follower_client.get(UNFOLLOW_URL)
         self.assertEqual(Follow.objects.count(), follows_before)
         self.assertFalse( 
-            Follow.objects.filter( 
-                user = self.new_follower, 
-                author=self.poster 
+            Follow.objects.filter(
+                user=self.new_follower,
+                author=self.poster
             ).exists() 
         )
         
