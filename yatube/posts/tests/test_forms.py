@@ -94,15 +94,13 @@ class FormsTests(TestCase):
         """Проверка создания нового коммента"""
         comment_count = Comment.objects.count()
         self.author_client.post(reverse('posts:add_comment',
-                                        args=(self.post.pk,)),
-                                        {'text': NEW_TEXT})
+                                        args=(self.post.pk,)), {'text': NEW_TEXT})
         response = self.author_client.get(reverse('posts:post_detail',
                                           kwargs={'post_id': self.post.pk}))
         self.assertContains(response, 'new comment')
         self.assertEqual(Comment.objects.count(), comment_count + 1)
         self.guest.post(reverse('posts:add_comment',
-                                 args=(self.post.pk,)),
-                                 {'text': 'NEW_TEXT'})
+                                args=(self.post.pk,)), {'text': 'NEW_TEXT'})
         self.assertFalse(Comment.objects.count() == comment_count + 1)
 
     def test_post_edit(self):
