@@ -1,6 +1,5 @@
 from django.test import Client, TestCase
 from django.urls import reverse
-from django.views.decorators.cache import cache_page
 from django.core.cache import cache
 
 from posts.models import Post, User

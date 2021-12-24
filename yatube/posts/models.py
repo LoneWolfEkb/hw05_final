@@ -2,7 +2,6 @@
 
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.db.models.constraints import UniqueConstraint
 
 User = get_user_model()
 
@@ -45,7 +44,7 @@ class Post(models.Model):
         'Картинка',
         upload_to='posts/',
         blank=True
-    ) 
+    )
 
     class Meta:
         ordering = ('-pub_date'),
@@ -66,7 +65,7 @@ class Comment(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name ='comments',
+        related_name='comments',
         verbose_name='Автор'
     )
     text = models.TextField(verbose_name='Текст комментария')
@@ -74,6 +73,7 @@ class Comment(models.Model):
         auto_now_add=True,
         verbose_name='Дата комментария'
     )
+
     class Meta:
         ordering = ('-created'),
         verbose_name = 'Комментарий',
@@ -93,8 +93,7 @@ class Follow(models.Model):
         related_name='following',
         verbose_name='Автор'
     )
-    class Meta:
-            constraints = [
-            models.UniqueConstraint(fields=['author', 'user'], name='unique_link'),
-        ]
 
+    class Meta:
+            constraints = [models.UniqueConstraint(fields=['author', 
+            'user'], name='unique_link')]

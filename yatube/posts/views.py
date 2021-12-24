@@ -4,7 +4,7 @@ from django.shortcuts import redirect
 from django.shortcuts import render, get_object_or_404
 
 from .forms import PostForm, CommentForm
-from .models import Post, Group, User, Comment, Follow
+from .models import Post, Group, User, Follow
 from .settings import POSTS_PER_PAGE
 
 
@@ -28,9 +28,9 @@ def group_posts(request, slug):
 
 def profile(request, username):
     author = get_object_or_404(User, username=username)
-    following = false
-    if (request.user.is_authenticated and 
-        Follow.objects.filter(user=request.user, author=author).exists()):
+    following = False
+    follow = Follow.objects.filter(user=request.user, author=author)
+    if (request.user.is_authenticated and follow.exists()):
         following = True
     return render(request, 'posts/profile.html', {
         'author': author,
@@ -47,9 +47,7 @@ def post_detail(request, post_id):
         'post': post,
         'form': form,
         'comments': comments}
-    #return render(request, 'posts/post_detail.html', {
-    #    'post': get_object_or_404(Post, pk=post_id)})
-    return render (request, 'posts/post_detail.html', context)
+    return render(request, 'posts/post_detail.html', context)
 
 
 @login_required
@@ -81,12 +79,12 @@ def post_edit(request, post_id):
 
 
 @login_required
-def add_comment(request, post_id): 
+def add_comment(request, post_id):
     form = CommentForm(request.POST or None)
     if form.is_valid():
         comment = form.save(commit=False)
         comment.author = request.user
-        comment.post = post
+        comment.post = get_object_or_404(Post, pk=post_id)
         comment.save()
     return redirect('posts:post_detail', post_id=post_id)
 
@@ -110,4 +108,3 @@ def profile_unfollow(request, username):
     author = get_object_or_404(User, username=username)
     Follow.objects.filter(user=request.user, author=author).delete()
     return redirect('posts:profile', username=username)
-
