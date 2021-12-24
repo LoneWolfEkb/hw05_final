@@ -11,9 +11,10 @@ POST_TEXT = 'Тестовый текст'
 POST_CREATE_URL = reverse('posts:post_create')
 FOLLOW_INDEX_URL = reverse('posts:follow_index')
 FOLLOW_URL = reverse('posts:profile_follow',
-                                     kwargs={'username': POSTER})
+                     kwargs={'username': POSTER})
 UNFOLLOW_URL = reverse('posts:profile_unfollow',
-                                     kwargs={'username': POSTER})
+                       kwargs={'username': POSTER})
+
 
 class FormsTests(TestCase):
     @classmethod
@@ -47,27 +48,22 @@ class FormsTests(TestCase):
         self.assertEqual(self.post, post)
         response = self.notfollower_client.get(FOLLOW_INDEX_URL)
         self.assertEqual(self.post, post)
-        
+
     def test_subscribe_unsubscribe(self):
         follows_before = Follow.objects.count()
         self.new_follower_client.get(FOLLOW_URL)
         self.assertEqual(Follow.objects.count(), follows_before + 1)
-        self.assertTrue( 
+        self.assertTrue(
             Follow.objects.filter(
                 user=self.new_follower,
                 author=self.poster
-            ).exists() 
+            ).exists()
         )
         self.new_follower_client.get(UNFOLLOW_URL)
         self.assertEqual(Follow.objects.count(), follows_before)
-        self.assertFalse( 
+        self.assertFalse(
             Follow.objects.filter(
                 user=self.new_follower,
                 author=self.poster
-            ).exists() 
+            ).exists()
         )
-        
-
-        
-        
-        

@@ -3,7 +3,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 from django import forms
 
-from posts.models import Post, User, Group
+from posts.models import Post, User, Group, Comment
 
 AUTHOR = 'auth'
 GROUP_TITLE = 'Тестовая группа'
@@ -27,12 +27,12 @@ class FormsTests(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.small_gif = (
-        b'\x47\x49\x46\x38\x39\x61\x02\x00'
-        b'\x01\x00\x80\x00\x00\x00\x00\x00'
-        b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
-        b'\x00\x00\x00\x2C\x00\x00\x00\x00'
-        b'\x02\x00\x01\x00\x00\x02\x02\x0C'
-        b'\x0A\x00\x3B'
+            b'\x47\x49\x46\x38\x39\x61\x02\x00'
+            b'\x01\x00\x80\x00\x00\x00\x00\x00'
+            b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
+            b'\x00\x00\x00\x2C\x00\x00\x00\x00'
+            b'\x02\x00\x01\x00\x00\x02\x02\x0C'
+            b'\x0A\x00\x3B'
         )
         cls.uploaded = SimpleUploadedFile(
             name='small.gif',
@@ -101,14 +101,13 @@ class FormsTests(TestCase):
         self.assertRedirects(response_logined,
                              self.POST_DETAIL_URL)
         self.assertEqual(Comment.objects.count(), comment_count + 1)
-        self.assertEqual(response_logined.context['post_comments'][0].text, 
+        self.assertEqual(response_logined.context['post_comments'][0].text,
                          NEW_TEXT)
-        response_unlogined=self.author_client.post(ADD_COMMENT_URL,
+        response_unlogined = self.author_client.post(ADD_COMMENT_URL,
                                                    data=form_data)
+        self.assertRedirects(response_unlogined,
+                             f'{LOGIN_URL}?next={self.POST_DETAIL_URL}')   
         self.assertEqual(Comment.objects.count(), comment_count + 1)
-        self.assertRedirects(
-            response_logined,
-            f'{LOGIN_URL}?next={self.POST_DETAIL_URL}')        
 
     def test_post_edit(self):
         """Проверка редактирования поста"""

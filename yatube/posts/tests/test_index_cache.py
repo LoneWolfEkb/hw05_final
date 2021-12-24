@@ -1,12 +1,12 @@
 from django.test import Client, TestCase
 from django.urls import reverse
-from django.core.cache import cache
 
 from posts.models import Post, User
 
 AUTHOR = 'auth'
 POST_TEXT = 'Тестовый текст'
 INDEX_URL = reverse('posts:index')
+
 
 class TaskPagesTests(TestCase):
     @classmethod
@@ -23,7 +23,7 @@ class TaskPagesTests(TestCase):
         self.author_client.force_login(self.author)
 
     def test_index_cache(self):
-        response = self.author_client.get(INDEX_URL) 
+        response = self.author_client.get(INDEX_URL)
         content_one = response.content
         self.post.delete()
         response_two = self.author_client.get(INDEX_URL)
