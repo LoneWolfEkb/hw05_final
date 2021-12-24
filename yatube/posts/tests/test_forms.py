@@ -97,7 +97,7 @@ class FormsTests(TestCase):
                                 args=(self.post.pk,)), {'text': NEW_TEXT})
         response = self.author_client.get(reverse('posts:post_detail',
                                           kwargs={'post_id': self.post.pk}))
-        self.assertContains(response, 'new comment')
+        self.assertContains(response, NEW_TEXT)
         self.assertEqual(Comment.objects.count(), comment_count + 1)
         self.guest.post(reverse('posts:add_comment',
                                 args=(self.post.pk,)), {'text': 'NEW_TEXT'})
