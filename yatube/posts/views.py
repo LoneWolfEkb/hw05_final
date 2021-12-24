@@ -27,6 +27,7 @@ def group_posts(request, slug):
 
 
 def profile(request, username):
+    posts = Post.objects.all()
     author = get_object_or_404(User, username=username)
     following = False
     follow = Follow.objects.filter(user=request.user, author=author)
@@ -34,7 +35,7 @@ def profile(request, username):
         following = True
     return render(request, 'posts/profile.html', {
         'author': author,
-        'page_obj': pagination(request, author.posts.all()),
+        'page_obj': pagination(request, posts),
         'following': following
     })
 

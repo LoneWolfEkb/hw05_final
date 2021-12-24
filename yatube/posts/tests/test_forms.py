@@ -93,22 +93,17 @@ class FormsTests(TestCase):
     def test_add_comment_only_auth_user_appears_at_desired_location(self):
         """Проверка создания нового коммента"""
         comment_count = Comment.objects.count()
-        form_data = {
-            'text': NEW_TEXT,
-        }
-        response_logined = self.author_client.post(self.ADD_COMMENT_URL,
-                                                   data=form_data,
-                                                   follow=True)
-        self.assertRedirects(response_logined,
-                             self.POST_DETAIL_URL)
+        self.author_client.post(reverse('posts:add_comment',
+                                        args=(self.post.pk,)),
+                                        {'text': NEW_TEXT})
+        response = self.author_client.get(reverse('posts:post_detail',
+                                          kwargs={'post_id': self.post.pk}))
+        self.assertContains(response, 'new comment')
         self.assertEqual(Comment.objects.count(), comment_count + 1)
-        self.assertEqual(response_logined.context['post_comments'][0].text,
-                         NEW_TEXT)
-        response_unlogined = self.author_client.post(self.ADD_COMMENT_URL,
-                                                     data=form_data)
-        self.assertRedirects(response_unlogined,
-                             f'{LOGIN_URL}?next={self.POST_DETAIL_URL}')
-        self.assertEqual(Comment.objects.count(), comment_count + 1)
+        self.guest.post(reverse('posts:add_comment',
+                                 args=(self.post.pk,)),
+                                 {'text': 'NEW_TEXT'})
+        self.assertFalse(Comment.objects.count() == comment_count + 1)
 
     def test_post_edit(self):
         """Проверка редактирования поста"""
