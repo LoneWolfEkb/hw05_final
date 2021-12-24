@@ -108,8 +108,7 @@ class FormsTests(TestCase):
         self.assertEqual(Comment.objects.count(), comment_count + 1)
         self.assertRedirects(
             response_logined,
-            f'{LOGIN_URL}?next={self.POST_DETAIL_URL}')
-        )        
+            f'{LOGIN_URL}?next={self.POST_DETAIL_URL}')        
 
     def test_post_edit(self):
         """Проверка редактирования поста"""
