@@ -107,8 +107,8 @@ class PostGroupProfileURLTests(TestCase):
             [UNFOLLOW_URL, f'{LOGIN_URL}?next={UNFOLLOW_URL}', self.guest],
             [FOLLOW_URL, PROFILE_POSTER_URL, self.author],
             [UNFOLLOW_URL, PROFILE_POSTER_URL, self.author],
-            [FOLLOW_URL, PROFILE_URL, self.author],
-            [UNFOLLOW_URL, PROFILE_URL, self.author]
+            [FOLLOW_SELF_URL, PROFILE_URL, self.author],
+            [UNFOLLOW_SELF_URL, PROFILE_URL, self.author]
         ]
         for url, redirect, user in urls_users:
             with self.subTest(url=url, user=user):
