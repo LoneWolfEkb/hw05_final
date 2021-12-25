@@ -8,7 +8,6 @@ from django.urls import reverse
 from django import forms
 
 from posts.models import Post, User, Group, Comment
-from posts.forms import PostForm
 
 AUTHOR = 'auth'
 ANOTHER = 'another'
