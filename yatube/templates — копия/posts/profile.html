@@ -32,6 +32,7 @@
       {% for post in page_obj %}
         {% include 'posts/includes/profile_posts.html'}       
         {% if not forloop.last %}<hr>{% endif %}
+        {% endif %}
       {% endfor %}	
     </article>  
     {% include 'includes/paginator.html' %}

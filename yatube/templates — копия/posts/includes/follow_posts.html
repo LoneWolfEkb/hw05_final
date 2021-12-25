@@ -12,4 +12,3 @@
 <p>{{ post.text|linebreaksbr }}</p>     
 {% if post.group %}
   Группа: <a href="{% url 'posts:group_list' post.group.slug %}">{{ group.title }}</a>
-{% endif %} 

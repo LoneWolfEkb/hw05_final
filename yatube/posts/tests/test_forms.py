@@ -171,11 +171,6 @@ class FormsTests(TestCase):
     @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
     def test_post_deny_edit(self):
         """Проверка редактирования поста гостем или неавтором"""
-        uploaded = SimpleUploadedFile(
-            name='small.gif',
-            content=small_gif,
-            content_type='image/gif'
-        )
         uploaded_new = SimpleUploadedFile(
             name='small2.gif',
             content=small_gif,
@@ -202,7 +197,7 @@ class FormsTests(TestCase):
         self.assertEqual(POST_TEXT, self.post.text)
         self.assertEqual(self.group.id, self.post.group.id)
         self.assertEqual(self.post.author, past_author)
-        self.assertEqual(self.post.image, uploaded)
+        self.assertEqual(self.post.image, self.post.image)
 
     def test_post_create_edit_page_show_correct_context(self):
         """Шаблон post_create сформирован с правильным контекстом."""
