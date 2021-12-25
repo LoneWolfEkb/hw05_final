@@ -15,7 +15,7 @@ PROFILE_URL = reverse('posts:profile', kwargs={'username': AUTHOR})
 UNEXISTING_URL = '/unexisting_page/'
 POST_CREATE_URL = reverse('posts:post_create')
 LOGIN_URL = reverse('users:login')
-FOLLOW_INDEX_URL = reverse('posts:follow')
+FOLLOW_INDEX_URL = reverse('posts:follow_index')
 FOLLOW_URL = reverse('posts:profile_follow',
                      kwargs={'username': POSTER})
 UNFOLLOW_URL = reverse('posts:profile_unfollow',
@@ -86,7 +86,7 @@ class PostGroupProfileURLTests(TestCase):
             self.ADD_COMMENT_URL: 'posts/post_detail.html',
             FOLLOW_URL: 'posts/profile.html',
             UNFOLLOW_URL: 'posts/profile.html',
-            FOLLOW_INDEX_URL: 'posts/profile_follow.html'
+            FOLLOW_INDEX_URL: 'posts/follow_index.html'
         }
         for adress, template in templates_url_names.items():
             with self.subTest(adress=adress):
