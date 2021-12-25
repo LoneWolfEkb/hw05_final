@@ -59,13 +59,13 @@ class FormsTests(TestCase):
         )
         cls.guest_client = Client()
         cls.author_client = Client()
-        cls.author_client.force_login(self.author)
+        cls.author_client.force_login(cls.author)
         cls.POST_EDIT_URL = reverse('posts:post_edit',
-                                    kwargs={'post_id': self.post.id})
+                                    kwargs={'post_id': cls.post.id})
         cls.POST_DETAIL_URL = reverse('posts:post_detail',
-                                      kwargs={'post_id': self.post.id})
+                                      kwargs={'post_id': cls.post.id})
         cls.ADD_COMMENT_URL = reverse('posts:add_comment',
-                                      kwargs={'post_id': self.post.id})
+                                      kwargs={'post_id': cls.post.id})
 
     def setUp(self):
         self.guest = Client()

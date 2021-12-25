@@ -27,9 +27,9 @@ class FormsTests(TestCase):
             author=cls.poster
         )
         cls.notfollower_client = Client()
-        cls.notfollower_client.force_login(self.notfollower)
+        cls.notfollower_client.force_login(cls.notfollower)
         cls.new_follower_client = Client()
-        cls.new_follower_client.force_login(self.new_follower)
+        cls.new_follower_client.force_login(cls.new_follower)
 
 
     def test_subscribe(self):

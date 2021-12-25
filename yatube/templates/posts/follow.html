@@ -7,7 +7,7 @@
   <div class="container py-5">     
     <h1>Посты авторов, на которых вы подписаны</h1>
     <article>
-      {% include 'posts/includes/switcher.html' with follow %}
+      {% include 'posts/includes/switcher.html' with follow=true %}
       {% for post in page_obj %}
           <li>
 		    Автор: <a class="nav-link" href="{% url 'posts:profile' post.author.username %}">{{ post.author.username }}</a>

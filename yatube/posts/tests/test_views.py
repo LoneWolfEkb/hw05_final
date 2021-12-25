@@ -40,7 +40,7 @@ class TaskPagesTests(TestCase):
         )
         cls.author = User.objects.create_user(username=AUTHOR)
         cls.author_client = Client()
-        cls.author_client.force_login(self.author)
+        cls.author_client.force_login(cls.author)
         cls.group = Group.objects.create(
             title=GROUP_TITLE,
             slug=GROUP_SLUG
@@ -63,13 +63,13 @@ class TaskPagesTests(TestCase):
         )
         cls.poster = User.objects.create_user(username=POSTER)
         cls.poster_client = Client()
-        cls.poster_client.force_login(self.follower)
+        cls.poster_client.force_login(cls.follower)
         cls.follow = Follow.objects.create(
             user=cls.author,
             author=cls.poster
         )
         cls.POST_DETAIL_URL = reverse('posts:post_detail',
-                                       kwargs={'post_id': self.post.id})
+                                       kwargs={'post_id': cls.post.id})
 
     def test_post_pages_use_correct_context(self):
         """Контекст на страницах с группами и постами"""

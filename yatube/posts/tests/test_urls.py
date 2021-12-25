@@ -40,13 +40,13 @@ class PostGroupProfileURLTests(TestCase):
         )
         cls.guest = Client()
         cls.another = Client()
-        cls.another.force_login(self.another_user)
+        cls.another.force_login(cls.another_user)
         cls.author = Client()
-        cls.author.force_login(self.author_user)
+        cls.author.force_login(cls.author_user)
         cls.POST_EDIT_URL = reverse('posts:post_edit',
-                                     kwargs={'post_id': self.post.id})
+                                     kwargs={'post_id': cls.post.id})
         cls.POST_DETAIL_URL = reverse('posts:post_detail',
-                                       kwargs={'post_id': self.post.id})
+                                       kwargs={'post_id': cls.post.id})
 
     def test_url_responses(self):
         """Тестируем доступность страниц"""
@@ -102,6 +102,6 @@ class PostGroupProfileURLTests(TestCase):
             [FOLLOW_URL, PROFILE_POSTER_URL, self.author],
             [UNFOLLOW_URL, PROFILE_POSTER_URL, self.author]
         ]
-        for url, redirect, user in urls_to_redirect:
+        for url, redirect, user in urls_users:
             with self.subTest(url=url, user=user):
                 self.assertRedirects(user.get(url, follow=True), redirect)

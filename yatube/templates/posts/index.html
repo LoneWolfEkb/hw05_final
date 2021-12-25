@@ -9,7 +9,7 @@
     <div class="container py-5">     
       <h1>Последние обновления на сайте</h1>
       <article>
-        {% include 'posts/includes/switcher.html' with index %}
+        {% include 'posts/includes/switcher.html' with index=true %}
         {% for post in page_obj %}
           <li>
 		    Автор: <a class="nav-link" href="{% url 'posts:profile' post.author.username %}">{{ post.author.username }}</a>
