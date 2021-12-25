@@ -140,11 +140,6 @@ class FormsTests(TestCase):
     @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
     def test_post_edit(self):
         """Проверка редактирования поста"""
-        uploaded = SimpleUploadedFile(
-            name='small.gif',
-            content=small_gif,
-            content_type='image/gif'
-        )
         uploaded_new = SimpleUploadedFile(
             name='small2.gif',
             content=small_gif,
