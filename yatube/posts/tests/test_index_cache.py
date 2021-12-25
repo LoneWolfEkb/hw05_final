@@ -23,9 +23,7 @@ class TaskPagesTests(TestCase):
         self.author_client.force_login(self.author)
 
     def test_index_cache(self):
-        response = self.author_client.get(INDEX_URL)
-        content_one = response.content
+        content_one = self.author_client.get(INDEX_URL).content
         self.post.delete()
-        response_two = self.author_client.get(INDEX_URL)
-        content_two = response_two.content
+        content_two = self.author_client.get(INDEX_URL).content
         self.assertEqual(content_one, content_two)

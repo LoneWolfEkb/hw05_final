@@ -38,18 +38,14 @@ class PostGroupProfileURLTests(TestCase):
             text=POST_TEXT,
             author=cls.author_user,
         )
-
-    def setUp(self):
-        self.guest = Client()
-        self.another = Client()
-        self.another.force_login(self.another_user)
-        self.author = Client()
-        self.author.force_login(self.author_user)
-        self.POST_EDIT_URL = reverse('posts:post_edit',
+        cls.guest = Client()
+        cls.another = Client()
+        cls.another.force_login(self.another_user)
+        cls.author = Client()
+        cls.author.force_login(self.author_user)
+        cls.POST_EDIT_URL = reverse('posts:post_edit',
                                      kwargs={'post_id': self.post.id})
-        self.POST_DETAIL_URL = reverse('posts:post_detail',
-                                       kwargs={'post_id': self.post.id})
-        self.ADD_COMMENT_URL = reverse('posts:add_comment',
+        cls.POST_DETAIL_URL = reverse('posts:post_detail',
                                        kwargs={'post_id': self.post.id})
 
     def test_url_responses(self):
@@ -67,6 +63,10 @@ class PostGroupProfileURLTests(TestCase):
             [self.POST_EDIT_URL, self.another, 302],
             [FOLLOW_INDEX_URL, self.another, 200],
             [self.POST_EDIT_URL, self.author, 200],
+            [FOLLOW_URL, self.guest, 302],
+            [UNFOLLOW_URL, self.guest, 302],
+            [FOLLOW_URL, self.author, 302],
+            [UNFOLLOW_URL, self.author, 302],
         ]
         for url, client, status in data_list:
             with self.subTest(url=url, client=client, status=status):
@@ -89,7 +89,7 @@ class PostGroupProfileURLTests(TestCase):
 
     def test_urls_redirect_correctly(self):
         """URL-адреса перенаправляются на нужные."""
-        urls_to_redirect = [
+        urls_users = [
             [POST_CREATE_URL, f'{LOGIN_URL}?next={POST_CREATE_URL}',
              self.guest],
             [self.POST_EDIT_URL, f'{LOGIN_URL}?next={self.POST_EDIT_URL}',
@@ -97,26 +97,11 @@ class PostGroupProfileURLTests(TestCase):
             [FOLLOW_INDEX_URL, f'{LOGIN_URL}?next={FOLLOW_INDEX_URL}',
              self.guest],
             [self.POST_EDIT_URL, self.POST_DETAIL_URL, self.another],
+            [FOLLOW_URL, f'{LOGIN_URL}?next={FOLLOW_URL}', self.guest],
+            [UNFOLLOW_URL, f'{LOGIN_URL}?next={UNFOLLOW_URL}', self.guest],
+            [FOLLOW_URL, PROFILE_POSTER_URL, self.author],
+            [UNFOLLOW_URL, PROFILE_POSTER_URL, self.author]
         ]
         for url, redirect, user in urls_to_redirect:
             with self.subTest(url=url, user=user):
                 self.assertRedirects(user.get(url, follow=True), redirect)
-
-    def test_redirect_comments_and_follows(self):
-        """Редирект комментариев и подписок."""
-        users_responses = [
-            [self.guest, f'{LOGIN_URL}?next={self.ADD_COMMENT_URL}',
-                self.ADD_COMMENT_URL],
-            [self.guest, f'{LOGIN_URL}?next={FOLLOW_URL}', FOLLOW_URL],
-            [self.guest, f'{LOGIN_URL}?next={UNFOLLOW_URL}', UNFOLLOW_URL],
-            [self.author, self.POST_DETAIL_URL, self.ADD_COMMENT_URL],
-            [self.author, PROFILE_POSTER_URL, FOLLOW_URL],
-            [self.author, PROFILE_POSTER_URL, UNFOLLOW_URL],
-        ]
-        for user, redirect_url, original_url in users_responses:
-            response = user.post(original_url)
-            self.assertRedirects(response, redirect_url,
-                                 status_code=302,
-                                 target_status_code=200,
-                                 msg_prefix='',
-                                 fetch_redirect_response=True)

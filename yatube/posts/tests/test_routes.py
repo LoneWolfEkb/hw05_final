@@ -4,6 +4,7 @@ from django.urls import reverse
 USERNAME = 'username'
 GROUP_SLUG = 'slug'
 POST_ID = 1
+APP_NAME = 'posts'
 
 
 class RoutesModelTest(TestCase):
@@ -17,10 +18,10 @@ class RoutesModelTest(TestCase):
             [f'/posts/{POST_ID}/', 'post_detail', [POST_ID]],
             ['/create/', 'post_create', None],
             [f'/posts/{POST_ID}/edit/', 'post_edit', [POST_ID]],
-            [f'/posts/{POST_ID}/comment', 'add_comment', [POST_ID]],
-            ['/follow/', 'follow_index', None],
+            [f'/posts/{POST_ID}/comment/', 'add_comment', [POST_ID]],
+            ['/follow/', 'follow_index/', None],
             [f'/profile/{USERNAME}/follow/', 'profile_follow', [USERNAME]],
             [f'/profile/{USERNAME}/unfollow/', 'profile_unfollow', [USERNAME]]
         ]
         for url, name, arg in routes:
-            self.assertEqual(url, reverse(f'posts:{name}', args=arg))
+            self.assertEqual(url, reverse(f'{APP_NAME}:{name}', args=arg))
