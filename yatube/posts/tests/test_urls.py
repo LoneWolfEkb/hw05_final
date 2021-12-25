@@ -86,7 +86,7 @@ class PostGroupProfileURLTests(TestCase):
             self.ADD_COMMENT_URL: 'posts/post_detail.html',
             FOLLOW_URL: 'posts/profile.html',
             UNFOLLOW_URL: 'posts/profile.html',
-            FOLLOW_INDEX_URL: 'posts/follow.html'
+            FOLLOW_INDEX_URL: 'posts/profile_follow.html'
         }
         for adress, template in templates_url_names.items():
             with self.subTest(adress=adress):
