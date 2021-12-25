@@ -116,10 +116,10 @@ class FormsTests(TestCase):
         comments = set(Comment.objects.all())
         comment_count = Comment.objects.count()
         form_data = {
-            'text': NEW_TEXT,
+            'text': NEW_COMMENT,
         }
         response = self.author_client.post(self.ADD_COMMENT_URL,
-                                           {'text': NEW_COMMENT},
+                                           data=form_data,
                                            follow=True)
         self.assertRedirects(response, self.POST_DETAIL_URL)
         self.assertEqual(Comment.objects.count(), comment_count + 1)
@@ -153,7 +153,7 @@ class FormsTests(TestCase):
         form_data = {
             'text': NEW_TEXT,
             'group': self.new_group.id,
-            'image': uploaded
+            'image': uploaded_new
         }
         past_author = self.post.author
         response = self.author_client.post(
@@ -202,7 +202,7 @@ class FormsTests(TestCase):
         self.assertEqual(POST_TEXT, self.post.text)
         self.assertEqual(self.group.id, self.post.group.id)
         self.assertEqual(self.post.author, past_author)
-        self.assertEqual(form_data['image'], uploaded)
+        self.assertEqual(self.post.image, uploaded)
 
     def test_post_create_edit_page_show_correct_context(self):
         """Шаблон post_create сформирован с правильным контекстом."""
