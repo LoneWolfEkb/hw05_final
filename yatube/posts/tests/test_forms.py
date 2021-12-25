@@ -34,7 +34,7 @@ class FormsTests(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.uploaded = SimpleUploadedFile(
-            name='small.gif',
+            name='picture',
             content=small_gif,
             content_type='image/gif'
         )
@@ -55,30 +55,20 @@ class FormsTests(TestCase):
         cls.post = Post.objects.create(
             text=POST_TEXT,
             author=cls.author,
-            group=cls.group
+            group=cls.group,
+            image=cls.uploaded
         )
         cls.guest_client = Client()
         cls.author_client = Client()
         cls.author_client.force_login(cls.author)
+        cls.another_client = Client()
+        cls.another_client.force_login(cls.another)
         cls.POST_EDIT_URL = reverse('posts:post_edit',
                                     kwargs={'post_id': cls.post.id})
         cls.POST_DETAIL_URL = reverse('posts:post_detail',
                                       kwargs={'post_id': cls.post.id})
         cls.ADD_COMMENT_URL = reverse('posts:add_comment',
                                       kwargs={'post_id': cls.post.id})
-
-    def setUp(self):
-        self.guest = Client()
-        self.author_client = Client()
-        self.author_client.force_login(self.author)
-        self.another_client = Client()
-        self.another_client.force_login(self.another)
-        self.POST_EDIT_URL = reverse('posts:post_edit',
-                                     kwargs={'post_id': self.post.id})
-        self.POST_DETAIL_URL = reverse('posts:post_detail',
-                                       kwargs={'post_id': self.post.id})
-        self.ADD_COMMENT_URL = reverse('posts:add_comment',
-                                       kwargs={'post_id': self.post.id})
 
     def test_form_create(self):
         """Проверка создания нового поста"""
@@ -87,7 +77,7 @@ class FormsTests(TestCase):
         form_data = {
             'text': NEW_TEXT,
             'group': self.unique_group.id,
-            'image': self.uploaded
+            'image': self.post.image
         }
         response = self.author_client.post(POST_CREATE_URL,
                                            data=form_data,
@@ -100,11 +90,11 @@ class FormsTests(TestCase):
         self.assertEqual(self.author, post.author)
         self.assertEqual(form_data['text'], post.text)
         self.assertEqual(form_data['group'], post.group.id)
-        self.assertEqual(form_data['image'], self.uploaded)
+        self.assertEqual(post.image, f"{form_data['image'].name}")
 
     def test_add_comment_auth_user(self):
         """Проверка создания нового коммента авторизованным"""
-
+        comments = set(Comment.objects.all())
         comment_count = Comment.objects.count()
         response = self.author_client.post(self.ADD_COMMENT_URL,
                                            {'text': NEW_COMMENT},
@@ -119,7 +109,7 @@ class FormsTests(TestCase):
     def test_add_comment_guest_user(self):
         """Проверка создания нового коммента гостем"""        
         comment_count = Comment.objects.count()        
-        self.guest.post(self.ADD_COMMENT_URL), {'text': NEW_TEXT})
+        self.guest_client.post(self.ADD_COMMENT_URL, {'text': NEW_TEXT})
         self.assertEqual(Comment.objects.count(), comment_count)
 
     def test_post_edit(self):
@@ -147,11 +137,10 @@ class FormsTests(TestCase):
         form_data = {
             'text': NEW_TEXT,
             'group': self.new_group.id,
-            'image': self.uploaded
         }
         users_redirects = {
             self.guest_client: f'{LOGIN_URL}?next={self.POST_EDIT_URL}',
-            self.another_client: f'{LOGIN_URL}?next={POST_CREATE_URL}'
+            self.another_client: self.POST_DETAIL_URL
         }
         for user, url in users_redirects.items():
             past_author = self.post.author
@@ -162,9 +151,9 @@ class FormsTests(TestCase):
             )
         self.assertRedirects(response, url)
         self.post.refresh_from_db()
-        self.assertEqual(form_data['text'], self.post.text)
+        self.assertEqual(POST_TEXT, self.post.text)
         self.assertEqual(form_data['image'], self.post.image)
-        self.assertEqual(form_data['group'], self.post.group.id)
+        self.assertEqual(self.group.id, self.post.group.id)
         self.assertEqual(self.post.author, past_author)
 
     def test_post_create_edit_page_show_correct_context(self):
