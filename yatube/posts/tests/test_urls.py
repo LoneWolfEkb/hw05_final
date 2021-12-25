@@ -22,9 +22,9 @@ FOLLOW_URL = reverse('posts:profile_follow',
 UNFOLLOW_URL = reverse('posts:profile_unfollow',
                        kwargs={'username': POSTER})
 FOLLOW_SELF_URL = reverse('posts:profile_follow',
-                     kwargs={'username': AUTHOR})
+                          kwargs={'username': AUTHOR})
 UNFOLLOW_SELF_URL = reverse('posts:profile_unfollow',
-                       kwargs={'username': AUTHOR})
+                            kwargs={'username': AUTHOR})
 
 
 class PostGroupProfileURLTests(TestCase):

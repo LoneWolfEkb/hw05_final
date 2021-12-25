@@ -132,7 +132,6 @@ class FormsTests(TestCase):
 
     def test_add_comment_guest_user(self):
         """Проверка создания нового коммента гостем"""
-        comment_count = Comment.objects.count()
         comments_before = set(Comment.objects.all())
         self.guest_client.post(self.ADD_COMMENT_URL, {'text': NEW_TEXT})
         comments_after = set(Comment.objects.all())
@@ -185,7 +184,7 @@ class FormsTests(TestCase):
         form_data = {
             'text': NEW_TEXT,
             'group': self.new_group.id,
-            'image': uploaded
+            'image': uploaded_new
         }
         clients_redirects = {
             self.guest_client: f'{LOGIN_URL}?next={self.POST_EDIT_URL}',
