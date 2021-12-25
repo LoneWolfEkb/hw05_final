@@ -62,12 +62,10 @@ class PostGroupProfileURLTests(TestCase):
             [self.POST_DETAIL_URL, self.guest, 200],
             [POST_CREATE_URL, self.guest, 302],
             [self.POST_EDIT_URL, self.guest, 302],
-            [self.ADD_COMMENT_URL, self.guest, 302],
             [FOLLOW_INDEX_URL, self.guest, 302],
             [POST_CREATE_URL, self.another, 200],
             [self.POST_EDIT_URL, self.another, 302],
-            [self.ADD_COMMENT_URL, self.another, 200],
-            [FOLLOW_INDEX_URL, self.another, 200], 
+            [FOLLOW_INDEX_URL, self.another, 200],
             [self.POST_EDIT_URL, self.author, 200],
         ]
         for url, client, status in data_list:
