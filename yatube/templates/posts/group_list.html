@@ -2,14 +2,13 @@
 {% block title %}
   {{ group.title }}
 {% endblock %}
-{% load thumbnail %}
 {% block content %}
   <div class="container py-5">
     <h1>{{ group.title }}</h1> 
     <p>{{ group.description|linebreaksbr }}</p>
     <article>
       {% for post in page_obj %}
-        {% include 'posts/includes/group_posts.html'}
+        {% include 'posts/includes/group_posts.html' %}
         {% if not forloop.last %}<hr>{% endif %}
       {% endfor %}
       {% include 'includes/paginator.html' %}		  

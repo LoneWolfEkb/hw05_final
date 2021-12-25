@@ -2,7 +2,6 @@
 {% block title %}
   Профайл пользователя {{author.username}}
 {% endblock %}
-{% load thumbnail %}
 {% block content %}
   <div class="container py-5">
     <div class="mb-5">
@@ -30,7 +29,7 @@
     </div>
     <article>
       {% for post in page_obj %}
-        {% include 'posts/includes/profile_posts.html'}       
+        {% include 'posts/includes/profile_posts.html' %}       
         {% if not forloop.last %}<hr>{% endif %}
       {% endfor %}	
     </article>  
