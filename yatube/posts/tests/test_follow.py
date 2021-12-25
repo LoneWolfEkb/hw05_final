@@ -44,8 +44,8 @@ class FormsTests(TestCase):
 
     def test_unsubscribe(self):
         Follow.objects.create(
-            user=cls.unfollower,
-            author=cls.poster
+            user=self.unfollower,
+            author=self.poster
         )
         follows_before = Follow.objects.count()
         self.unfollower_client.get(UNFOLLOW_URL)
