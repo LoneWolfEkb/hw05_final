@@ -31,7 +31,6 @@ class FormsTests(TestCase):
         cls.new_follower_client = Client()
         cls.new_follower_client.force_login(cls.new_follower)
 
-
     def test_subscribe(self):
         follows_before = Follow.objects.count()
         self.new_follower_client.get(FOLLOW_URL)
@@ -42,7 +41,7 @@ class FormsTests(TestCase):
                 author=self.poster
             ).exists()
         )
-    
+
     def test_unsubscribe(self):
         self.new_follower_client.get(FOLLOW_URL)
         follows_before = Follow.objects.count()

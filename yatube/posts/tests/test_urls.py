@@ -44,9 +44,9 @@ class PostGroupProfileURLTests(TestCase):
         cls.author = Client()
         cls.author.force_login(cls.author_user)
         cls.POST_EDIT_URL = reverse('posts:post_edit',
-                                     kwargs={'post_id': cls.post.id})
+                                    kwargs={'post_id': cls.post.id})
         cls.POST_DETAIL_URL = reverse('posts:post_detail',
-                                       kwargs={'post_id': cls.post.id})
+                                      kwargs={'post_id': cls.post.id})
 
     def test_url_responses(self):
         """Тестируем доступность страниц"""

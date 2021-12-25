@@ -29,6 +29,7 @@ small_gif = (
     b'\x0A\x00\x3B'
 )
 
+
 class FormsTests(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -107,8 +108,8 @@ class FormsTests(TestCase):
         self.assertEqual(comment.text, NEW_COMMENT)
 
     def test_add_comment_guest_user(self):
-        """Проверка создания нового коммента гостем"""        
-        comment_count = Comment.objects.count()        
+        """Проверка создания нового коммента гостем"""
+        comment_count = Comment.objects.count()
         self.guest_client.post(self.ADD_COMMENT_URL, {'text': NEW_TEXT})
         self.assertEqual(Comment.objects.count(), comment_count)
 

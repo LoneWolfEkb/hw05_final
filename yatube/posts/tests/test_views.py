@@ -63,7 +63,7 @@ class TaskPagesTests(TestCase):
             author=cls.author_user
         )
         cls.POST_DETAIL_URL = reverse('posts:post_detail',
-                                       kwargs={'post_id': cls.post.id})
+                                      kwargs={'post_id': cls.post.id})
 
     def test_post_pages_use_correct_context(self):
         """Контекст на страницах с группами и постами"""
