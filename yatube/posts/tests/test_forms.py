@@ -101,7 +101,7 @@ class FormsTests(TestCase):
         self.assertEqual(Comment.objects.count(), comment_count + 1)
         self.guest.post(reverse('posts:add_comment',
                                 args=(self.post.pk,)), {'text': 'NEW_TEXT'})
-        self.assertFalse(Comment.objects.count() == comment_count + 1)
+        self.assertEqual(Comment.objects.count(), comment_count + 1)
 
     def test_post_edit(self):
         """Проверка редактирования поста"""
