@@ -5,6 +5,7 @@ from posts.models import Group, Post, User
 
 AUTHORIZED = 'another'
 AUTHOR = 'auth'
+POSTER = 'poster'
 GROUP_TITLE = 'Тестовая группа'
 GROUP_SLUG = 'test-slug'
 POST_TEXT = 'Тестовый текст'
@@ -47,7 +48,7 @@ class PostGroupProfileURLTests(TestCase):
         self.POST_DETAIL_URL = reverse('posts:post_detail',
                                        kwargs={'post_id': self.post.id})
         self.ADD_COMMENT_URL = reverse('posts:add_comment',
-                               kwargs={'post_id': self.post.id})
+                                       kwargs={'post_id': self.post.id})
 
     def test_url_responses(self):
         """Тестируем доступность страниц"""
