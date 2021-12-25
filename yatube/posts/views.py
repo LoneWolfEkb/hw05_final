@@ -31,7 +31,7 @@ def profile(request, username):
     following = False
     if (
         request.user.is_authenticated
-        Follow.objects.filter(user=request.user, author=author).exists()
+        and Follow.objects.filter(user=request.user, author=author).exists()
     ):
         following = True
     return render(request, 'posts/profile.html', {
