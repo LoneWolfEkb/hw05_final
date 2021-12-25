@@ -104,7 +104,8 @@ class PostGroupProfileURLTests(TestCase):
 
     def test_redirect_comments_and_follows(self):
         users_responses = [
-            [self.guest, f'{LOGIN_URL}?next={self.ADD_COMMENT_URL}', self.ADD_COMMENT_URL],
+            [self.guest, f'{LOGIN_URL}?next={self.ADD_COMMENT_URL}',
+                self.ADD_COMMENT_URL],
             [self.guest, f'{LOGIN_URL}?next={FOLLOW_URL}', FOLLOW_URL],
             [self.guest, f'{LOGIN_URL}?next={UNFOLLOW_URL}', UNFOLLOW_URL],
             [self.author, self.POST_DETAIL_URL, self.ADD_COMMENT_URL],
