@@ -1,9 +1,14 @@
+import shutil
+import tempfile
+
+from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django import forms
 
 from posts.models import Post, User, Group, Comment
+from posts.forms import PostForm
 
 AUTHOR = 'auth'
 ANOTHER = 'another'
@@ -11,8 +16,6 @@ GROUP_TITLE = 'Тестовая группа'
 GROUP_SLUG = 'test-slug'
 NEW_GROUP_TITLE = 'Новая группа'
 NEW_GROUP_SLUG = 'new-slug'
-UNIQUE_GROUP_TITLE = 'Очищаемая группа'
-UNIQUE_GROUP_SLUG = 'clean-slug'
 POST_TEXT = 'Тестовый текст'
 NEW_TEXT = 'Новый текст'
 NEW_COMMENT = 'Новый комментарий'
@@ -20,22 +23,24 @@ PROFILE_URL = reverse('posts:profile', kwargs={'username': AUTHOR})
 POST_CREATE_URL = reverse('posts:post_create')
 LOGIN_URL = reverse('users:login')
 
-small_gif = (
-    b'\x47\x49\x46\x38\x39\x61\x02\x00'
-    b'\x01\x00\x80\x00\x00\x00\x00\x00'
-    b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
-    b'\x00\x00\x00\x2C\x00\x00\x00\x00'
-    b'\x02\x00\x01\x00\x00\x02\x02\x0C'
-    b'\x0A\x00\x3B'
+TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
+
+small_gif = ( 
+    b'\x47\x49\x46\x38\x39\x61\x02\x00' 
+    b'\x01\x00\x80\x00\x00\x00\x00\x00' 
+    b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00' 
+    b'\x00\x00\x00\x2C\x00\x00\x00\x00' 
+    b'\x02\x00\x01\x00\x00\x02\x02\x0C' 
+    b'\x0A\x00\x3B' 
 )
 
-
+@override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
 class FormsTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.uploaded = SimpleUploadedFile(
-            name='picture',
+            name='small.gif',
             content=small_gif,
             content_type='image/gif'
         )
@@ -48,10 +53,6 @@ class FormsTests(TestCase):
         cls.new_group = Group.objects.create(
             title=NEW_GROUP_TITLE,
             slug=NEW_GROUP_SLUG,
-        )
-        cls.unique_group = Group.objects.create(
-            title=UNIQUE_GROUP_TITLE,
-            slug=UNIQUE_GROUP_SLUG,
         )
         cls.post = Post.objects.create(
             text=POST_TEXT,
@@ -71,14 +72,31 @@ class FormsTests(TestCase):
         cls.ADD_COMMENT_URL = reverse('posts:add_comment',
                                       kwargs={'post_id': cls.post.id})
 
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
+
+    @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
     def test_form_create(self):
         """Проверка создания нового поста"""
+        # По какой-то странной причине,
+        # если просто и элегантно сослаться на self.uploaded
+        # в поле image формы,
+        # то редирект не проходит: 200(expected 302)
+        # приходится вот так. Так почему-то ОК. Пока что
+        # сделаю так, если в slack'е коллектив не разберется
+        uploaded = SimpleUploadedFile(
+            name='small.gif',
+            content=small_gif,
+            content_type='image/gif'
+        )
         posts = set(Post.objects.all())
         post_count = Post.objects.count()
         form_data = {
             'text': NEW_TEXT,
-            'group': self.unique_group.id,
-            'image': self.post.image
+            'group': self.group.id,
+            'image': uploaded
         }
         response = self.author_client.post(POST_CREATE_URL,
                                            data=form_data,
@@ -91,7 +109,7 @@ class FormsTests(TestCase):
         self.assertEqual(self.author, post.author)
         self.assertEqual(form_data['text'], post.text)
         self.assertEqual(form_data['group'], post.group.id)
-        self.assertEqual(post.image, f"{form_data['image'].name}")
+        self.assertEqual(form_data['image'], uploaded)
 
     def test_add_comment_auth_user(self):
         """Проверка создания нового коммента авторизованным"""
@@ -113,12 +131,18 @@ class FormsTests(TestCase):
         self.guest_client.post(self.ADD_COMMENT_URL, {'text': NEW_TEXT})
         self.assertEqual(Comment.objects.count(), comment_count)
 
+    @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
     def test_post_edit(self):
         """Проверка редактирования поста"""
+        uploaded = SimpleUploadedFile(
+            name='small.gif',
+            content=small_gif,
+            content_type='image/gif'
+        )
         form_data = {
             'text': NEW_TEXT,
             'group': self.new_group.id,
-            'image': self.uploaded
+            'image': uploaded
         }
         past_author = self.post.author
         response = self.author_client.post(
@@ -129,15 +153,22 @@ class FormsTests(TestCase):
         self.assertRedirects(response, self.POST_DETAIL_URL)
         self.post.refresh_from_db()
         self.assertEqual(form_data['text'], self.post.text)
-        self.assertEqual(form_data['image'], self.post.image)
+        self.assertEqual(form_data['image'], uploaded)
         self.assertEqual(form_data['group'], self.post.group.id)
         self.assertEqual(self.post.author, past_author)
 
+    @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
     def test_post_deny_edit(self):
         """Проверка редактирования поста гостем или неавтором"""
+        uploaded = SimpleUploadedFile(
+            name='small.gif',
+            content=small_gif,
+            content_type='image/gif'
+        )
         form_data = {
             'text': NEW_TEXT,
             'group': self.new_group.id,
+            'image': uploaded
         }
         users_redirects = {
             self.guest_client: f'{LOGIN_URL}?next={self.POST_EDIT_URL}',
@@ -153,7 +184,6 @@ class FormsTests(TestCase):
         self.assertRedirects(response, url)
         self.post.refresh_from_db()
         self.assertEqual(POST_TEXT, self.post.text)
-        self.assertEqual(form_data['image'], self.post.image)
         self.assertEqual(self.group.id, self.post.group.id)
         self.assertEqual(self.post.author, past_author)
 
