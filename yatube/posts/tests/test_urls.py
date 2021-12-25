@@ -15,7 +15,7 @@ PROFILE_URL = reverse('posts:profile', kwargs={'username': AUTHOR})
 UNEXISTING_URL = '/unexisting_page/'
 POST_CREATE_URL = reverse('posts:post_create')
 LOGIN_URL = reverse('users:login')
-FOLLOW_INDEX_URL = reverse('users:follow')
+FOLLOW_INDEX_URL = reverse('posts:follow')
 FOLLOW_URL = reverse('posts:profile_follow',
                      kwargs={'username': POSTER})
 UNFOLLOW_URL = reverse('posts:profile_unfollow',
