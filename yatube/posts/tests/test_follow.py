@@ -44,6 +44,7 @@ class FormsTests(TestCase):
         )
     
     def test_unsubscribe(self):
+        self.new_follower_client.get(FOLLOW_URL)
         follows_before = Follow.objects.count()
         self.new_follower_client.get(UNFOLLOW_URL)
         self.assertEqual(Follow.objects.count(), follows_before - 1)

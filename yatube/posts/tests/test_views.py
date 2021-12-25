@@ -2,10 +2,10 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from posts.models import Post, User, Group
+from posts.models import Post, User, Group, Follow
 
 AUTHOR = 'auth'
-POSTER = 'poster' # лучше было бы 'followee', но слово не совсем существует
+FOLLOWER = 'follower'
 GROUP_TITLE = 'Тестовая группа'
 GROUP_SLUG = 'test-slug'
 OTHER_GROUP = 'Вторая группа'
@@ -38,9 +38,12 @@ class TaskPagesTests(TestCase):
             content=small_gif,
             content_type='image/gif'
         )
-        cls.author = User.objects.create_user(username=AUTHOR)
-        cls.author_client = Client()
-        cls.author_client.force_login(cls.author)
+        cls.author_user = User.objects.create_user(username=AUTHOR)
+        cls.author = Client()
+        cls.author.force_login(cls.author_user)
+        cls.follower_user = User.objects.create_user(username=FOLLOWER)
+        cls.follower = Client()
+        cls.follower.force_login(cls.follower_user)
         cls.group = Group.objects.create(
             title=GROUP_TITLE,
             slug=GROUP_SLUG
@@ -51,22 +54,13 @@ class TaskPagesTests(TestCase):
         )
         cls.post = Post.objects.create(
             text=POST_TEXT,
-            author=cls.author,
+            author=cls.author_user,
             group=cls.group,
             image=cls.uploaded
         )
-        cls.other_post = Post.objects.create(
-            text=OTHER_TEXT,
-            author=cls.poster,
-            group=cls.other_group,
-            image=cls.uploaded
-        )
-        cls.poster = User.objects.create_user(username=POSTER)
-        cls.poster_client = Client()
-        cls.poster_client.force_login(cls.follower)
         cls.follow = Follow.objects.create(
-            user=cls.author,
-            author=cls.poster
+            user=cls.follower_user,
+            author=cls.author_user
         )
         cls.POST_DETAIL_URL = reverse('posts:post_detail',
                                        kwargs={'post_id': cls.post.id})
@@ -74,32 +68,32 @@ class TaskPagesTests(TestCase):
     def test_post_pages_use_correct_context(self):
         """Контекст на страницах с группами и постами"""
         urls_posts = [
-            [INDEX_URL, self.post],
-            [GROUP_LIST_URL, self.post],
-            [PROFILE_URL, self.post],
-            [self.POST_DETAIL_URL, self.post],
-            [FOLLOW_INDEX_URL, self.other_post]
+            [INDEX_URL, self.author],
+            [GROUP_LIST_URL, self.author],
+            [PROFILE_URL, self.author],
+            [self.POST_DETAIL_URL, self.author],
+            [FOLLOW_INDEX_URL, self.follower]
         ]
-        for url, post_type in urls_posts:
+        for url, client in urls_posts:
             with self.subTest(url=url):
-                response = self.author_client.get(url)
+                response = client.get(url)
                 if url == self.POST_DETAIL_URL:
                     post = response.context.get('post')
                 else:
                     self.assertEqual((len(response.context['page_obj'])), 1)
                     post = response.context['page_obj'][0]
-                self.assertEqual(post.text, post_type.text)
-                self.assertEqual(post.author, post_type.author)
-                self.assertEqual(post.group, post_type.group)
-                self.assertEqual(post.id, post_type.id)
-                self.assertEqual(post.image, post_type.image)
+                self.assertEqual(post.text, self.post.text)
+                self.assertEqual(post.author, self.post.author)
+                self.assertEqual(post.group, self.post.group)
+                self.assertEqual(post.id, self.post.id)
+                self.assertEqual(post.image, self.post.image)
 
     def test_author_on_profile_page(self):
-        response = self.author_client.get(PROFILE_URL)
-        self.assertEqual(response.context.get('author'), self.author)
+        response = self.author.get(PROFILE_URL)
+        self.assertEqual(response.context.get('author'), self.author_user)
 
     def test_group_in_group_list(self):
-        response = self.author_client.get(GROUP_LIST_URL)
+        response = self.author.get(GROUP_LIST_URL)
         group = response.context.get('group')
         self.assertEqual(group, self.group)
         self.assertEqual(group.title, self.group.title)
@@ -107,12 +101,11 @@ class TaskPagesTests(TestCase):
         self.assertEqual(group.id, self.group.id)
 
     def test_post_not_in_other_group_list_or_subscription(self):
-        posts_urls = [
-            [self.other.post, GROUP_LIST_URL],
-            [self.post, FOLLOW_INDEX_URL]
+        urls = [
+            OTHER_GROUP_LIST_URL,
+            FOLLOW_INDEX_URL
         ]
-        # так как poster не подписан обратно на author, тут логинется он
-        for post_type, url in posts_urls:
+        for url in urls:
             with self.subTest(url=url):
-                response = self.poster.client.get(url)
-                self.assertNotIn(self.other_post, response.context['page_obj'])
+                response = self.author.get(url)
+                self.assertNotIn(self.post, response.context['page_obj'])
