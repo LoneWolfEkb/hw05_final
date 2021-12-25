@@ -13,9 +13,12 @@ GROUP_LIST_URL = reverse('posts:group_list', kwargs={'slug': GROUP_SLUG})
 PROFILE_URL = reverse('posts:profile', kwargs={'username': AUTHOR})
 UNEXISTING_URL = '/unexisting_page/'
 POST_CREATE_URL = reverse('posts:post_create')
-POST_EDIT_VIEW = 'posts:post_edit'
-POST_DETAIL_VIEW = 'posts:post_detail'
 LOGIN_URL = reverse('users:login')
+FOLLOW_INDEX_URL = reverse('users:follow')
+FOLLOW_URL = reverse('posts:profile_follow',
+                     kwargs={'username': POSTER})
+UNFOLLOW_URL = reverse('posts:profile_unfollow',
+                       kwargs={'username': POSTER})
 
 
 class PostGroupProfileURLTests(TestCase):
@@ -39,10 +42,12 @@ class PostGroupProfileURLTests(TestCase):
         self.another.force_login(self.another_user)
         self.author = Client()
         self.author.force_login(self.author_user)
-        self.POST_EDIT_URL = reverse(POST_EDIT_VIEW,
+        self.POST_EDIT_URL = reverse('posts:post_edit',
                                      kwargs={'post_id': self.post.id})
-        self.POST_DETAIL_URL = reverse(POST_DETAIL_VIEW,
+        self.POST_DETAIL_URL = reverse('posts:post_detail',
                                        kwargs={'post_id': self.post.id})
+        self.ADD_COMMENT_URL = reverse('posts:add_comment',
+                               kwargs={'post_id': self.post.id})
 
     def test_url_responses(self):
         """Тестируем доступность страниц"""
@@ -54,9 +59,16 @@ class PostGroupProfileURLTests(TestCase):
             [self.POST_DETAIL_URL, self.guest, 200],
             [POST_CREATE_URL, self.guest, 302],
             [self.POST_EDIT_URL, self.guest, 302],
+            [self.ADD_COMMENT_URL, self.guest, 302],
+            [FOLLOW_INDEX_URL, self.guest, 302],
+            [FOLLOW_URL, self.another, 302],
             [POST_CREATE_URL, self.another, 200],
             [self.POST_EDIT_URL, self.another, 302],
-            [self.POST_EDIT_URL, self.author, 200]
+            [self.ADD_COMMENT_URL, self.another, 200],
+            [FOLLOW_INDEX_URL, self.another, 200],
+            [FOLLOW_URL, self.another, 200],
+            [UNFOLLOW_URL, self.another, 200],
+            [self.POST_EDIT_URL, self.author, 200],
         ]
         for url, client, status in data_list:
             with self.subTest(url=url, client=client, status=status):
@@ -69,7 +81,11 @@ class PostGroupProfileURLTests(TestCase):
             PROFILE_URL: 'posts/profile.html',
             self.POST_DETAIL_URL: 'posts/post_detail.html',
             POST_CREATE_URL: 'posts/create_post.html',
-            self.POST_EDIT_URL: 'posts/create_post.html'
+            self.POST_EDIT_URL: 'posts/create_post.html',
+            self.ADD_COMMENT_URL: 'posts/post_detail.html',
+            FOLLOW_URL: 'posts/profile.html',
+            UNFOLLOW_URL: 'posts/profile.html',
+            FOLLOW_INDEX_URL: 'posts/follow.html'
         }
         for adress, template in templates_url_names.items():
             with self.subTest(adress=adress):
@@ -82,6 +98,12 @@ class PostGroupProfileURLTests(TestCase):
             [POST_CREATE_URL, f'{LOGIN_URL}?next={POST_CREATE_URL}',
              self.guest],
             [self.POST_EDIT_URL, f'{LOGIN_URL}?next={self.POST_EDIT_URL}',
+             self.guest],
+            [self.ADD_COMMENT_URL, f'{LOGIN_URL}?next={self.ADD_COMMENT_URL}',
+             self.guest],
+            [FOLLOW_INDEX_URL, f'{LOGIN_URL}?next={FOLLOW_INDEX_URL}',
+             self.guest],
+            [FOLLOW_URL, f'{LOGIN_URL}?next={self.FOLLOW_URL}',
              self.guest],
             [self.POST_EDIT_URL, self.POST_DETAIL_URL, self.another],
         ]

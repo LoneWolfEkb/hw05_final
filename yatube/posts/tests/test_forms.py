@@ -14,8 +14,6 @@ UNIQUE_GROUP_TITLE = 'Очищаемая группа'
 UNIQUE_GROUP_SLUG = 'clean-slug'
 POST_TEXT = 'Тестовый текст'
 NEW_TEXT = 'Новый текст'
-POST_EDIT_VIEW = 'posts:post_edit'
-POST_DETAIL_VIEW = 'posts:post_detail'
 PROFILE_URL = reverse('posts:profile', kwargs={'username': AUTHOR})
 POST_CREATE_URL = reverse('posts:post_create')
 LOGIN_URL = reverse('users:login')
@@ -61,9 +59,9 @@ class FormsTests(TestCase):
         self.guest = Client()
         self.author_client = Client()
         self.author_client.force_login(self.author)
-        self.POST_EDIT_URL = reverse(POST_EDIT_VIEW,
+        self.POST_EDIT_URL = reverse('posts:post_edit',
                                      kwargs={'post_id': self.post.id})
-        self.POST_DETAIL_URL = reverse(POST_DETAIL_VIEW,
+        self.POST_DETAIL_URL = reverse('posts:post_detail',
                                        kwargs={'post_id': self.post.id})
         self.ADD_COMMENT_URL = reverse('posts:add_comment',
                                        kwargs={'post_id': self.post.id})
