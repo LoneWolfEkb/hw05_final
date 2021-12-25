@@ -1,10 +1,10 @@
 from django.test import TestCase
 from django.urls import reverse
+from posts.urls import app_name
 
 USERNAME = 'username'
 GROUP_SLUG = 'slug'
 POST_ID = 1
-APP_NAME = 'posts'
 
 
 class RoutesModelTest(TestCase):
@@ -24,4 +24,4 @@ class RoutesModelTest(TestCase):
             [f'/profile/{USERNAME}/unfollow/', 'profile_unfollow', [USERNAME]]
         ]
         for url, name, arg in routes:
-            self.assertEqual(url, reverse(f'{APP_NAME}:{name}', args=arg))
+            self.assertEqual(url, reverse(f'{app_name}:{name}', args=arg))

@@ -44,11 +44,6 @@ class FormsTests(TestCase):
             content=small_gif,
             content_type='image/gif'
         )
-        cls.uploaded_two = SimpleUploadedFile(
-            name='small2.gif',
-            content=small_gif,
-            content_type='image/gif'
-        )
         cls.author = User.objects.create_user(username=AUTHOR)
         cls.another = User.objects.create_user(username=ANOTHER)
         cls.group = Group.objects.create(
@@ -85,7 +80,12 @@ class FormsTests(TestCase):
     @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
     def test_form_create(self):
         """Проверка создания нового поста"""
-        # Если просто поставить self.uploaded в form_data, то пост не создастся
+        # По какой-то странной причине,
+        # если просто и элегантно сослаться на self.uploaded
+        # в поле image формы,
+        # то редирект не проходит: 200(expected 302)
+        # приходится вот так. Так почему-то ОК. Пока что
+        # сделаю так, если в slack'е коллектив не разберется
         uploaded = SimpleUploadedFile(
             name='small.gif',
             content=small_gif,
@@ -98,10 +98,10 @@ class FormsTests(TestCase):
             'group': self.group.id,
             'image': uploaded
         }
-        self.author_client.post(POST_CREATE_URL,
-                                data=form_data,
-                                follow=True)
-        # Редиректы мы уже проверяем в url, а здесь они только создают проблемы
+        response = self.author_client.post(POST_CREATE_URL,
+                                           data=form_data,
+                                           follow=True)
+        self.assertRedirects(response, PROFILE_URL)
         self.assertEqual(Post.objects.count(), post_count + 1)
         posts = set(Post.objects.all()) - posts
         self.assertEqual(len(posts), 1)
@@ -115,65 +115,95 @@ class FormsTests(TestCase):
         """Проверка создания нового коммента авторизованным"""
         comments = set(Comment.objects.all())
         comment_count = Comment.objects.count()
-        self.author_client.post(self.ADD_COMMENT_URL,
-                                {'text': NEW_COMMENT},
-                                follow=True)
+        form_data = {
+            'text': NEW_TEXT,
+        }
+        response = self.author_client.post(self.ADD_COMMENT_URL,
+                                           {'text': NEW_COMMENT},
+                                           follow=True)
+        self.assertRedirects(response, self.POST_DETAIL_URL)
         self.assertEqual(Comment.objects.count(), comment_count + 1)
         comments = set(Comment.objects.all()) - comments
         self.assertEqual(len(comments), 1)
         comment = (comments).pop()
-        self.assertEqual(comment.text, NEW_COMMENT)
+        self.assertEqual(form_data['text'], comment.text)
+        self.assertEqual(self.author, comment.author)
+        self.assertEqual(self.post, comment.post)
 
     def test_add_comment_guest_user(self):
         """Проверка создания нового коммента гостем"""
         comment_count = Comment.objects.count()
+        comments_before = set(Comment.objects.all())
         self.guest_client.post(self.ADD_COMMENT_URL, {'text': NEW_TEXT})
-        self.assertEqual(Comment.objects.count(), comment_count)
+        comments_after = set(Comment.objects.all())
+        self.assertEqual(comments_before, comments_after)
 
     @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
     def test_post_edit(self):
-        """Проверка редактирования поста автором"""
+        """Проверка редактирования поста"""
+        uploaded = SimpleUploadedFile(
+            name='small.gif',
+            content=small_gif,
+            content_type='image/gif'
+        )
+        uploaded_new = SimpleUploadedFile(
+            name='small2.gif',
+            content=small_gif,
+            content_type='image/gif'
+        )
         form_data = {
             'text': NEW_TEXT,
             'group': self.new_group.id,
-            'image': self.uploaded_two
+            'image': uploaded
         }
         past_author = self.post.author
-        self.author_client.post(
+        response = self.author_client.post(
             self.POST_EDIT_URL,
             data=form_data,
             follow=True
         )
+        self.assertRedirects(response, self.POST_DETAIL_URL)
         self.post.refresh_from_db()
-        self.assertEqual(form_data['text'], NEW_TEXT,)
-        self.assertEqual(form_data['image'], self.uploaded_two)
-        self.assertEqual(form_data['group'], self.new_group.id)
+        self.assertEqual(form_data['text'], self.post.text)
+        self.assertEqual(form_data['image'], uploaded_new)
+        self.assertEqual(form_data['group'], self.post.group.id)
         self.assertEqual(self.post.author, past_author)
 
     @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
     def test_post_deny_edit(self):
         """Проверка редактирования поста гостем или неавтором"""
+        uploaded = SimpleUploadedFile(
+            name='small.gif',
+            content=small_gif,
+            content_type='image/gif'
+        )
+        uploaded_new = SimpleUploadedFile(
+            name='small2.gif',
+            content=small_gif,
+            content_type='image/gif'
+        )
         form_data = {
             'text': NEW_TEXT,
             'group': self.new_group.id,
-            'image': self.uploaded
+            'image': uploaded
         }
-        users_redirects = {
+        clients_redirects = {
             self.guest_client: f'{LOGIN_URL}?next={self.POST_EDIT_URL}',
             self.another_client: self.POST_DETAIL_URL
         }
-        for user, url in users_redirects.items():
+        for client, url in clients_redirects.items():
             past_author = self.post.author
-            user.post(
+            response = client.post(
                 self.POST_EDIT_URL,
                 data=form_data,
                 follow=True
             )
+        self.assertRedirects(response, url)
         self.post.refresh_from_db()
         self.assertEqual(POST_TEXT, self.post.text)
         self.assertEqual(self.group.id, self.post.group.id)
         self.assertEqual(self.post.author, past_author)
-        self.assertEqual(form_data['image'], self.uploaded)
+        self.assertEqual(form_data['image'], uploaded)
 
     def test_post_create_edit_page_show_correct_context(self):
         """Шаблон post_create сформирован с правильным контекстом."""

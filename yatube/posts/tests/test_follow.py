@@ -19,15 +19,15 @@ class FormsTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.notfollower = User.objects.create_user(username=NOT_FOLLOWER)
+        cls.unfollower = User.objects.create_user(username=NOT_FOLLOWER)
         cls.poster = User.objects.create_user(username=POSTER)
         cls.new_follower = User.objects.create_user(username=NEW_FOLLOWER)
         cls.post = Post.objects.create(
             text=POST_TEXT,
             author=cls.poster
         )
-        cls.notfollower_client = Client()
-        cls.notfollower_client.force_login(cls.notfollower)
+        cls.unfollower_client = Client()
+        cls.unfollower_client.force_login(cls.unfollower)
         cls.new_follower_client = Client()
         cls.new_follower_client.force_login(cls.new_follower)
 
@@ -43,13 +43,16 @@ class FormsTests(TestCase):
         )
 
     def test_unsubscribe(self):
-        self.new_follower_client.get(FOLLOW_URL)
+        Follow.objects.create(
+            user=cls.unfollower
+            author=cls.poster
+        )
         follows_before = Follow.objects.count()
-        self.new_follower_client.get(UNFOLLOW_URL)
+        self.unfollower_client.get(UNFOLLOW_URL)
         self.assertEqual(Follow.objects.count(), follows_before - 1)
         self.assertFalse(
             Follow.objects.filter(
-                user=self.new_follower,
+                user=self.unfollower,
                 author=self.poster
             ).exists()
         )

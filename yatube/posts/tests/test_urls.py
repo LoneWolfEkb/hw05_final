@@ -21,6 +21,10 @@ FOLLOW_URL = reverse('posts:profile_follow',
                      kwargs={'username': POSTER})
 UNFOLLOW_URL = reverse('posts:profile_unfollow',
                        kwargs={'username': POSTER})
+FOLLOW_SELF_URL = reverse('posts:profile_follow',
+                     kwargs={'username': AUTHOR})
+UNFOLLOW_SELF_URL = reverse('posts:profile_unfollow',
+                       kwargs={'username': AUTHOR})
 
 
 class PostGroupProfileURLTests(TestCase):
@@ -67,6 +71,8 @@ class PostGroupProfileURLTests(TestCase):
             [UNFOLLOW_URL, self.guest, 302],
             [FOLLOW_URL, self.author, 302],
             [UNFOLLOW_URL, self.author, 302],
+            [FOLLOW_SELF_URL, self.author, 302],
+            [UNFOLLOW_SELF_URL, self.author, 302]
         ]
         for url, client, status in data_list:
             with self.subTest(url=url, client=client, status=status):
@@ -100,7 +106,9 @@ class PostGroupProfileURLTests(TestCase):
             [FOLLOW_URL, f'{LOGIN_URL}?next={FOLLOW_URL}', self.guest],
             [UNFOLLOW_URL, f'{LOGIN_URL}?next={UNFOLLOW_URL}', self.guest],
             [FOLLOW_URL, PROFILE_POSTER_URL, self.author],
-            [UNFOLLOW_URL, PROFILE_POSTER_URL, self.author]
+            [UNFOLLOW_URL, PROFILE_POSTER_URL, self.author],
+            [FOLLOW_URL, PROFILE_URL, self.author],
+            [UNFOLLOW_URL, PROFILE_URL, self.author]
         ]
         for url, redirect, user in urls_users:
             with self.subTest(url=url, user=user):
