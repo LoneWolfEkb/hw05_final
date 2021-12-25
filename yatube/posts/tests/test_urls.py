@@ -103,6 +103,7 @@ class PostGroupProfileURLTests(TestCase):
                 self.assertRedirects(user.get(url, follow=True), redirect)
 
     def test_redirect_comments_and_follows(self):
+        """Редирект комментариев и подписок."""
         users_responses = [
             [self.guest, f'{LOGIN_URL}?next={self.ADD_COMMENT_URL}',
                 self.ADD_COMMENT_URL],

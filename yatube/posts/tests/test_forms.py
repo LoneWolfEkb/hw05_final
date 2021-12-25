@@ -88,7 +88,7 @@ class FormsTests(TestCase):
         self.assertEqual(form_data['group'], post.group.id)
         self.assertEqual(form_data['image'], self.uploaded)
 
-    def test_add_comment_only_auth_user_appears_at_desired_location(self):
+    def test_add_comment_only_auth_user(self):
         """Проверка создания нового коммента"""
         comment_count = Comment.objects.count()
         self.author_client.post(reverse('posts:add_comment',
