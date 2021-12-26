@@ -108,7 +108,6 @@ class PostGroupProfileURLTests(TestCase):
             [FOLLOW_URL, PROFILE_POSTER_URL, self.author],
             [UNFOLLOW_URL, PROFILE_POSTER_URL, self.author],
             [FOLLOW_SELF_URL, PROFILE_URL, self.author],
-            [UNFOLLOW_SELF_URL, PROFILE_URL, self.author]
         ]
         for url, redirect, user in urls_users:
             with self.subTest(url=url, user=user):
