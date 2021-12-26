@@ -8,7 +8,7 @@
     <article>
       {% include 'posts/includes/switcher.html' with follow=true %}
       {% for post in page_obj %}
-        {% include 'posts/includes/follow_posts.html' %}
+        {% include 'posts/includes/posts_layout.html' %}
 		{% if not forloop.last %}<hr>{% endif %}
       {% endfor %} 
       {% include 'includes/paginator.html' %}

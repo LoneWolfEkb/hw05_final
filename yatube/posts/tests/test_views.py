@@ -100,7 +100,7 @@ class TaskPagesTests(TestCase):
         self.assertEqual(group.slug, self.group.slug)
         self.assertEqual(group.id, self.group.id)
 
-    def test_post_not_in_other_group(self):
+    def test_post_not_in_other_group_or_subscription(self):
         urls = [
             OTHER_GROUP_LIST_URL,
             FOLLOW_INDEX_URL

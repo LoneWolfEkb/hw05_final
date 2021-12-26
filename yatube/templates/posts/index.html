@@ -10,7 +10,7 @@
       <article>
         {% include 'posts/includes/switcher.html' with index=true %}
         {% for post in page_obj %}
-          {% include 'posts/includes/index_posts.html' %}
+          {% include 'posts/includes/posts_layout.html' %}
           {% if not forloop.last %}<hr>{% endif %}
         {% endfor %}
       </article>

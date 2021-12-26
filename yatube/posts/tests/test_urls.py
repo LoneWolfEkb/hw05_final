@@ -72,7 +72,7 @@ class PostGroupProfileURLTests(TestCase):
             [FOLLOW_URL, self.author, 302],
             [UNFOLLOW_URL, self.author, 302],
             [FOLLOW_SELF_URL, self.author, 302],
-            [UNFOLLOW_SELF_URL, self.author, 302]
+            [UNFOLLOW_SELF_URL, self.author, 404]
         ]
         for url, client, status in data_list:
             with self.subTest(url=url, client=client, status=status):

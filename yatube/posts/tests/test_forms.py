@@ -80,12 +80,6 @@ class FormsTests(TestCase):
     @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
     def test_form_create(self):
         """Проверка создания нового поста"""
-        # По какой-то странной причине,
-        # если просто и элегантно сослаться на self.uploaded
-        # в поле image формы,
-        # то редирект не проходит: 200(expected 302)
-        # приходится вот так. Так почему-то ОК. Пока что
-        # сделаю так, если в slack'е коллектив не разберется
         uploaded = SimpleUploadedFile(
             name='small.gif',
             content=small_gif,
