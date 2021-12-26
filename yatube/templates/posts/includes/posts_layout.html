@@ -11,7 +11,10 @@
   <img class="card-img my-2" src="{{ im.url }}">
 {% endthumbnail %}
 <p>{{ post.text|linebreaksbr }}</p>
-{% if 'posts:group_list' not in request.path %}     
+{% if profile in request.path %}   
+  <a href="{% url 'posts:post_detail' post.id %}">подробная информация </a>
+{% endif %}
+{% if not group_list in request.path %}
   {% if post.group %}
     Группа: <a href="{% url 'posts:group_list' post.group.slug %}">{{ group.title }}</a>
   {% endif %}
